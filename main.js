@@ -9,34 +9,42 @@ const parseDirection = async (direction, directionList, plan) => {
   );
   const dom = new JSDOM(data);
   const { document } = dom.window;
-  const posts = document.querySelectorAll("tbody > tr");
-  const abiturs = Array.from(posts).map((element) => {
-    const entranceExams = element
-      .querySelectorAll("td")[5]
-      ?.textContent.split(" ");
-    if (!entranceExams) return {};
-    entranceExams.pop();
-    return {
-      ВУЗ: "МИРЭА",
-      Направление: direction.title,
-      ОП: direction.title,
-      Форма_обучения: "очная",
-      Основа_обучения: "Госбюджет",
-      СНИЛС_УК: element.querySelectorAll("td")[1].textContent,
-      Конкурс: plan,
-      СУММА: element.querySelectorAll("td")[8].textContent,
-      СУММА_БЕЗ_ИД: element.querySelectorAll("td")[6].textContent,
-      ВИ_1: entranceExams[0] ? entranceExams[0] : null,
-      ВИ_2: entranceExams[1] ? entranceExams[1] : null,
-      ВИ_3: entranceExams[2] ? entranceExams[2] : null,
-      ВИ_4: entranceExams[3] ? entranceExams[3] : null,
-      ВИ_5: entranceExams[4] ? entranceExams[4] : null,
-      ИД: element.querySelectorAll("td")[7].textContent,
-      Согласие: element.querySelectorAll("td")[2].textContent,
-      Оригинал: element.querySelectorAll("td")[3].textContent,
-    };
-  });
-  return abiturs;
+  const abiturs = document.querySelectorAll("tbody > tr");
+  const abitursInfo = Array.from(abiturs)
+    .filter((element) =>
+      element.querySelector("td").className === "tgtOrgTr" ? false : true
+    )
+    .map((element) => {
+      const entranceExams = element
+        .querySelectorAll("td")[5]
+        .textContent.split(" ");
+      entranceExams.pop();
+      entranceExams.forEach((element, index) => {
+        if (element == "-") {
+          entranceExams[index] = null;
+        }
+      });
+      return {
+        ВУЗ: "МИРЭА",
+        Направление: direction.title,
+        ОП: direction.title,
+        Форма_обучения: "очная",
+        Основа_обучения: "Госбюджет",
+        СНИЛС_УК: element.querySelectorAll("td")[1].textContent,
+        Конкурс: plan,
+        СУММА: element.querySelectorAll("td")[8].textContent,
+        СУММА_БЕЗ_ИД: element.querySelectorAll("td")[6].textContent,
+        ВИ_1: entranceExams[0] ? entranceExams[0] : null,
+        ВИ_2: entranceExams[1] ? entranceExams[1] : null,
+        ВИ_3: entranceExams[2] ? entranceExams[2] : null,
+        ВИ_4: entranceExams[3] ? entranceExams[3] : null,
+        ВИ_5: entranceExams[4] ? entranceExams[4] : null,
+        ИД: element.querySelectorAll("td")[7].textContent,
+        Согласие: element.querySelectorAll("td")[2].textContent,
+        Оригинал: element.querySelectorAll("td")[3].textContent,
+      };
+    });
+  return abitursInfo;
 };
 
 async function start() {
@@ -81,6 +89,14 @@ async function start() {
       const temp = await parseDirection(
         direction,
         direction.target.listId[0],
+        "ЦК"
+      );
+      allCompetitions.push(temp);
+    }
+    if (direction?.target?.listId[1]) {
+      const temp = await parseDirection(
+        direction,
+        direction.target.listId[1],
         "ЦК"
       );
       allCompetitions.push(temp);
