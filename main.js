@@ -57,7 +57,7 @@ async function start() {
       const temp = await parseDirection(
         direction,
         direction.common.listId[0],
-        "ОП"
+        "ОК"
       );
       allCompetitions.push(temp);
     }
