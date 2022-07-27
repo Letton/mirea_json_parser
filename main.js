@@ -24,22 +24,35 @@ const parseDirection = async (direction, directionList, plan) => {
           entranceExams[index] = null;
         }
       });
+      const snils = element.querySelectorAll("td")[1].textContent;
       return {
         ВУЗ: "МИРЭА",
         Направление: direction.title,
         ОП: direction.title,
         Форма_обучения: "очная",
         Основа_обучения: "Госбюджет",
-        СНИЛС_УК: element.querySelectorAll("td")[1].textContent,
+        СНИЛС_УК:
+          snils.length == 14
+            ? snils.substring(0, 11) + " " + snils.substring(12)
+            : snils,
         Конкурс: plan,
-        СУММА: element.querySelectorAll("td")[8].textContent,
-        СУММА_БЕЗ_ИД: element.querySelectorAll("td")[6].textContent,
-        ВИ_1: entranceExams[0] ? entranceExams[0] : null,
-        ВИ_2: entranceExams[1] ? entranceExams[1] : null,
-        ВИ_3: entranceExams[2] ? entranceExams[2] : null,
-        ВИ_4: entranceExams[3] ? entranceExams[3] : null,
-        ВИ_5: entranceExams[4] ? entranceExams[4] : null,
-        ИД: element.querySelectorAll("td")[7].textContent,
+        СУММА:
+          element.querySelectorAll("td")[8].textContent == "-"
+            ? null
+            : element.querySelectorAll("td")[8].textContent,
+        СУММА_БЕЗ_ИД:
+          element.querySelectorAll("td")[6].textContent == "-"
+            ? null
+            : element.querySelectorAll("td")[6].textContent,
+        ВИ_1: Number(entranceExams[0]) ? Number(entranceExams[0]) : null,
+        ВИ_2: Number(entranceExams[1]) ? Number(entranceExams[1]) : null,
+        ВИ_3: Number(entranceExams[2]) ? Number(entranceExams[2]) : null,
+        ВИ_4: Number(entranceExams[3]) ? Number(entranceExams[3]) : null,
+        ВИ_5: Number(entranceExams[4]) ? Number(entranceExams[4]) : null,
+        ИД:
+          element.querySelectorAll("td")[7].textContent == "-"
+            ? null
+            : element.querySelectorAll("td")[7].textContent,
         Согласие: element.querySelectorAll("td")[2].textContent,
         Оригинал: element.querySelectorAll("td")[3].textContent,
       };
@@ -103,17 +116,10 @@ async function start() {
     }
     await fs.writeFile(
       `МИРЭА${index}.json`,
-      JSON.stringify(
-        Object.assign(
-          {},
-          ...allCompetitions.flat().map((element, index) => ({
-            [index]: element,
-          }))
-        )
-      ),
+      JSON.stringify(allCompetitions.flat()),
       (err) => {
         if (err) throw err;
-        console.log("Data written to file");
+        console.log(`Data written to file МИРЭА${index}.json`);
       }
     );
     allCompetitions = [];
